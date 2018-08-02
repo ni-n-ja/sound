@@ -30,6 +30,9 @@ var right = new Uint8Array(length);
 var left = new Uint8Array(length);
 
 
+var canvas;
+var ctx;
+
 window.onload = () => {
 
     document.body.onclick = () => {};
@@ -63,8 +66,22 @@ window.onload = () => {
         }
     }
 
+    canvas = document.getElementById("canvas");
+    canvas.setAttribute('width', 1000 + 'px');
+    canvas.setAttribute('height', 500 + 'px');
+    canvas.setAttribute('background-color', 'rgba(0,0,0,0)');
+    canvas.width = 1000;
+    canvas.height = 500;
+    ctx = canvas.getContext("2d");
+
     setInterval(() => {
-        console.log();
+        console.log(bufferLength);
+        // analyser.getByteFrequencyData(frequency);
+        // analyser2.getByteFrequencyData(frequency2);
+        // ctx.beginPath();
+        // ctx.moveTo(50, 50);
+        // ctx.lineTo(100, 100);
+        // ctx.stroke();
     }, 1000);
 
 };
