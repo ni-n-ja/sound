@@ -14,13 +14,11 @@ var frequency = new Uint8Array(bufferLength);
 
 var filter = audioCtx.createBiquadFilter();
 filter.type = 'lowpass';
-filter.frequency.value = 20;
+filter.frequency.value = 440;
 
 var analyser2 = audioCtx.createAnalyser();
-analyser2.fftSize = 2048;
-var frequency2 = new Uint8Array(bufferLength);
-
-var scriptNode2 = audioCtx.createScriptProcessor(length / 2, 2, 2);
+analyser2.fftSize = 1024;
+var frequency2 = new Uint8Array(bufferLength / 2);
 
 var input;
 
@@ -49,31 +47,20 @@ window.onload = () => {
             analyser.connect(scriptNode);
             scriptNode.connect(filter);
             filter.connect(analyser2);
-            analyser2.connect(scriptNode2);
-            scriptNode2.connect(gainNode);
             gainNode.gain.value = 0;
+            analyser2.connect(gainNode);
             gainNode.connect(audioCtx.destination);
         });
 
     scriptNode.onaudioprocess = (event) => {
+        rightInput = event.inputBuffer.getChannelData(0);
+        leftInput = event.inputBuffer.getChannelData(1);
         let a = event.outputBuffer.getChannelData(0);
         let b = event.outputBuffer.getChannelData(1);
-        let outBufferLength = b.length;
-        analyser.getByteFrequencyData(frequency);
-        for (var i = 0; i < outBufferLength; i++) {
-            a[i] = frequency[i % bufferLength];
-            b[i] = frequency[i % bufferLength];
-        }
-    }
-
-    scriptNode2.onaudioprocess = (event) => {
-        let a = event.outputBuffer.getChannelData(0);
-        let b = event.outputBuffer.getChannelData(1);
-        let outBufferLength = b.length;
-        analyser2.getByteFrequencyData(frequency2);
-        for (var i = 0; i < outBufferLength; i++) {
-            a[i] = Math.log10(frequency2[i % bufferLength]);
-            b[i] = Math.log10(frequency2[i % bufferLength]);
+        //analyser.getByteFrequencyData(frequency);
+        for (var i = 0; i < length; i++) {
+            a[i] = rightInput[i];
+            b[i] = leftInput[i];
         }
     }
 
@@ -86,10 +73,12 @@ window.onload = () => {
     ctx = canvas.getContext("2d");
 
 
-    var anime = () => {
+    setInterval(() => {
         ctx.clearRect(0, 0, 1000, 500);
         analyser.getByteFrequencyData(frequency);
         analyser2.getByteFrequencyData(frequency2);
+        console.log(frequency);
+        console.log(frequency2);
 
         ctx.strokeStyle = "rgba(255,0,0,0.5)";
         for (let i = 0; i < bufferLength; i++) {
@@ -100,15 +89,14 @@ window.onload = () => {
         }
 
         ctx.strokeStyle = "rgba(0,0,255,1)";
-        for (let i = 1; i <= bufferLength; i++) {
+        for (let i = 0; i < bufferLength; i++) {
             ctx.beginPath();
-            ctx.moveTo(i, frequency2[i - 1]);
-            ctx.lineTo(i, frequency2[i]);
+            ctx.moveTo(i, frequency2[i]);
+            ctx.lineTo(i, frequency2[i + 1]);
             ctx.stroke();
         }
-        requestAnimationFrame(anime);
-    };
 
-    anime();
+
+    }, 1000);
 
 };
