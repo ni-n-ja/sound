@@ -32,24 +32,37 @@ var left = new Uint8Array(length);
 var canvas;
 var ctx;
 
+var id = null;
+
 window.onload = () => {
 
-    document.body.onclick = () => {};
 
-    navigator.mediaDevices.getUserMedia({
-            audio: true,
-            video: false
-        })
-        .then((stream) => {
-            input = audioCtx.createMediaStreamSource(stream);
-            input.connect(analyser);
-            analyser.connect(scriptNode);
-            // analyser.connect(gainNode);
-            scriptNode.connect(filter);
-            filter.connect(gainNode);
-            gainNode.gain.value = 0.6;
-            gainNode.connect(audioCtx.destination);
+    navigator.mediaDevices.enumerateDevices().then(function (devices) {
+        devices.forEach(function (device) {
+            if (device.kind == "audioinput" && device.label.includes("NETDUETTO")) {
+                console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
+                id = device.deviceId;
+                navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        deviceId: id
+                    },
+                    video: false
+                })
+                    .then((stream) => {
+                        input = audioCtx.createMediaStreamSource(stream);
+                        input.connect(analyser);
+                        analyser.connect(scriptNode);
+                        // analyser.connect(gainNode);
+                        scriptNode.connect(filter);
+                        filter.connect(gainNode);
+                        gainNode.gain.value = 0.6;
+                        gainNode.connect(audioCtx.destination);
+                    });
+            }
         });
+    });
+
+    document.body.onclick = () => { };
 
     scriptNode.onaudioprocess = (event) => {
         let output = event.outputBuffer;
