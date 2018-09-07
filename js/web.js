@@ -14,7 +14,7 @@ var frequency = new Uint8Array(bufferLength);
 
 var filter = audioCtx.createBiquadFilter();
 filter.type = 'lowpass';
-filter.frequency.value = 1500;
+filter.frequency.value = 1000;
 
 var input;
 
@@ -47,7 +47,7 @@ window.onload = () => {
             // analyser.connect(gainNode);
             scriptNode.connect(filter);
             filter.connect(gainNode);
-            gainNode.gain.value = 0.4;
+            gainNode.gain.value = 0.6;
             gainNode.connect(audioCtx.destination);
         });
 
@@ -59,8 +59,11 @@ window.onload = () => {
         rightInput = input.getChannelData(0);
         leftInput = input.getChannelData(1);
         for (var i = 0; i < 2048; i++) {
-            rightOutput[i] = rightInput[i] - rightInput[i] * Math.random() * 10;
-            leftOutput[i] = leftInput[i] - leftInput[i] * Math.random() * 10;
+            let pos = Math.floor(i * 0.6);
+            rightOutput[i] = rightInput[pos] - Math.pow((rightInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (rightInput[Math.floor(pos * 0.9)]);
+            leftOutput[i] = leftInput[pos] - Math.pow((leftInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (leftInput[Math.floor(pos * 0.9)]);
+            // rightOutput[i] = rightInput[pos] - Math.pow((rightInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (rightInput[Math.floor(pos * 1 * (Math.random() * 0.1))] * (Math.random() * 1)) % 1;
+            // leftOutput[i] = leftInput[pos] - Math.pow((leftInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (leftInput[Math.floor(pos * 1 * (Math.random() * 0.1))] * (Math.random() * 1)) % 1;
         }
     }
 
