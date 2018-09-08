@@ -20,6 +20,7 @@ ao.on('error', err => console.error);
 ao.start();
 
 var buffer = Buffer.allocUnsafe(4068);
+var ubuffer;
 var length;
 
 process.on('message', function (data) {
@@ -27,7 +28,6 @@ process.on('message', function (data) {
   for (var i = 0; i < length; i++) {
     buffer[i] = data.message.data[i];
   }
-  nWrite(buffer);
 });
 
 process.on("exit", function () {
@@ -40,8 +40,11 @@ process.once('SIGINT', () => {
   ao.quit();
 });
 
+
+var ok;
+
 function nWrite(data) {
-  var ok = true;
+  ok = true;
   do {
     ok = ao.write(data);
   } while (ok);
@@ -49,3 +52,11 @@ function nWrite(data) {
     ao.once('drain', nWrite);
   }
 }
+
+process.on('play', () => {
+  nWrite(buffer);
+  setTimeout(() => {
+    process.emit('play');
+  }, 10);
+});
+process.emit('play');

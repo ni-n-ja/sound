@@ -1,4 +1,8 @@
 const portAudio = require('naudiodon');
+const {
+  Writable
+} = require('stream');
+const util = require("util");
 
 var child_process = require("child_process");
 var child = child_process.fork("./x");
@@ -22,12 +26,37 @@ devices.forEach((device) => {
       ai.quit();
     });
 
-    ai.on('data', data => {
-      child.send({
-        message: data
-      });
-    });
+    // ai.on('data', data => {
+    //   child.send({
+    //     message: data
+    //   });
+    // });
 
+    function Filter() {
+      if (!(this instanceof Filter)) {
+        return new filter();
+      }
+
+      let Active = true;
+      Writable.call(this, {
+        // highWaterMark: 16384,
+        highWaterMark: 16384,
+        decodeStrings: false,
+        objectMode: false,
+        write: (chunk, encoding, cb) => {
+          child.send({
+            message: chunk
+          });
+          cb();
+        }
+      });
+
+    }
+    util.inherits(Filter, Writable);
+
+    var filter = new Filter();
+
+    ai.pipe(filter);
     ai.start();
 
   }
