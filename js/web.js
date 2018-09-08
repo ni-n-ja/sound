@@ -14,7 +14,7 @@ var frequency = new Uint8Array(bufferLength);
 
 var filter = audioCtx.createBiquadFilter();
 filter.type = 'lowpass';
-filter.frequency.value = 1000;
+filter.frequency.value = 1600;
 
 var input;
 
@@ -43,11 +43,11 @@ window.onload = () => {
                 console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
                 id = device.deviceId;
                 navigator.mediaDevices.getUserMedia({
-                    audio: {
-                        deviceId: id
-                    },
-                    video: false
-                })
+                        audio: {
+                            deviceId: id
+                        },
+                        video: false
+                    })
                     .then((stream) => {
                         input = audioCtx.createMediaStreamSource(stream);
                         input.connect(analyser);
@@ -62,7 +62,7 @@ window.onload = () => {
         });
     });
 
-    document.body.onclick = () => { };
+    document.body.onclick = () => {};
 
     scriptNode.onaudioprocess = (event) => {
         let output = event.outputBuffer;
@@ -72,9 +72,11 @@ window.onload = () => {
         rightInput = input.getChannelData(0);
         leftInput = input.getChannelData(1);
         for (var i = 0; i < 2048; i++) {
-            let pos = Math.floor(i * 0.6);
-            rightOutput[i] = rightInput[pos] - Math.pow((rightInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (rightInput[Math.floor(pos * 0.85)]);
-            leftOutput[i] = leftInput[pos] - Math.pow((leftInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (leftInput[Math.floor(pos * 0.85)]);
+            let pos = Math.floor(i * 0.7);
+            // rightOutput[i] = rightInput[pos] - Math.pow((rightInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (rightInput[Math.floor(pos * 0.85)]);
+            // leftOutput[i] = leftInput[pos] - Math.pow((leftInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (leftInput[Math.floor(pos * 0.85)]);
+            rightOutput[i] = (rightInput[pos]) + (rightInput[Math.floor(i * 0.5)]);
+            leftOutput[i] = (leftInput[pos]) + (leftInput[Math.floor(i * 0.5)]);
             // rightOutput[i] = rightInput[pos] - Math.pow((rightInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (rightInput[Math.floor(pos * 1 * (Math.random() * 0.1))] * (Math.random() * 1)) % 1;
             // leftOutput[i] = leftInput[pos] - Math.pow((leftInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (leftInput[Math.floor(pos * 1 * (Math.random() * 0.1))] * (Math.random() * 1)) % 1;
         }
