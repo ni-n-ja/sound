@@ -6,32 +6,12 @@ const {
 const util = require("util");
 
 var sampleRate = 44100;
-var tableSize = 200;
-var buffer = Buffer.allocUnsafe(tableSize * 4 * 2);
+var tableSize = 100;
+var buffer = Buffer.allocUnsafe(tableSize * 2);
 
 var ai;
 var ao;
 
-
-function Filter() {
-  if (!(this instanceof Filter)) {
-    return new filter();
-  }
-
-  let Active = true;
-  Writable.call(this, {
-    highWaterMark: 16384,
-    decodeStrings: false,
-    objectMode: false,
-    write: (chunk, encoding, cb) => {
-      console.log(chunk);
-    }
-  });
-
-}
-util.inherits(Filter, Writable);
-
-var filter = new Filter();
 
 var devices = portAudio.getDevices();
 // console.log(JSON.stringify(devices));
@@ -42,14 +22,14 @@ devices.forEach((device) => {
 
     ai = new portAudio.AudioInput({
       channelCount: 2,
-      sampleFormat: portAudio.SampleFormat16Bit,
+      sampleFormat: portAudio.SampleFormat32Bit,
       sampleRate: 44100,
       deviceId: device.id
     });
 
     ao = new portAudio.AudioOutput({
       channelCount: 2,
-      sampleFormat: portAudio.SampleFormat16Bit,
+      sampleFormat: portAudio.SampleFormat32Bit,
       sampleRate: 44100,
       deviceId: -1
     });
@@ -64,13 +44,33 @@ devices.forEach((device) => {
     });
 
     ai.on('data', data => {
-      console.log(data);
-      write(data);
+      nWrite(data);
     });
+
+    function Filter() {
+      if (!(this instanceof Filter)) {
+        return new filter();
+      }
+
+      let Active = true;
+      Writable.call(this, {
+        highWaterMark: 16384,
+        decodeStrings: false,
+        objectMode: false,
+        write: (chunk, encoding, cb) => {
+          nWrite(chunk);
+          cb();
+        }
+      });
+
+    }
+    util.inherits(Filter, Writable);
+
+    var filter = new Filter();
 
     // ai.pipe(filter);
 
-    function write(data) {
+    function nWrite(data) {
       // for (var i = 0; i < tableSize * 4 * 2; i += 2) {
       //   buffer[i] = (Math.sin((i / tableSize) * 3.1415 * 2.0) * 12);
       //   buffer[i + 1] = (Math.sin((i / tableSize) * 3.1415) * 12);
@@ -81,7 +81,7 @@ devices.forEach((device) => {
         // console.log("w", data);
       } while (ok);
       if (!ok) {
-        ao.once('drain', write);
+        ao.once('drain', nWrite);
         // console.log("d", data);
       }
     }
