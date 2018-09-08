@@ -73,8 +73,8 @@ window.onload = () => {
         leftInput = input.getChannelData(1);
         for (var i = 0; i < 2048; i++) {
             let pos = Math.floor(i * 0.6);
-            rightOutput[i] = rightInput[pos] - Math.pow((rightInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (rightInput[Math.floor(pos * 0.9)]);
-            leftOutput[i] = leftInput[pos] - Math.pow((leftInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (leftInput[Math.floor(pos * 0.9)]);
+            rightOutput[i] = rightInput[pos] - Math.pow((rightInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (rightInput[Math.floor(pos * 0.85)]);
+            leftOutput[i] = leftInput[pos] - Math.pow((leftInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (leftInput[Math.floor(pos * 0.85)]);
             // rightOutput[i] = rightInput[pos] - Math.pow((rightInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (rightInput[Math.floor(pos * 1 * (Math.random() * 0.1))] * (Math.random() * 1)) % 1;
             // leftOutput[i] = leftInput[pos] - Math.pow((leftInput[pos] * (Math.random() - 0.5) % 0.5), 3) + (leftInput[Math.floor(pos * 1 * (Math.random() * 0.1))] * (Math.random() * 1)) % 1;
         }
