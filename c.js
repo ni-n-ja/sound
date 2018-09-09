@@ -44,7 +44,7 @@ process.once('SIGINT', () => {
 
 var length = 0;
 var pos;
-
+var tBuffer = null;
 //3528
 
 setInterval(() => {
@@ -72,13 +72,17 @@ function Filter() {
       //   // chunk[i] = (chunk[pos]) + (chunk[Math.floor(i * 0.5)]);
       //   // chunk[i + 1] = (chunk[pos]) + (chunk[Math.floor(i * 0.5)]);
       // }
-      buffer.copy(chunk.buffer);
+
+      // buffer.copy(chunk.buffer);
+      tBuffer = new Uint8Array(chunk.buffer);
+
       for (var i = 0; i < length; i += 2) {
         // buffer[i] = Math.random() * 127;
-        let pos = Math.floor(i * 0.7);
-        buffer[i] = (buffer[pos]) + (buffer[Math.floor(i * 0.5)]);
-        buffer[i + 1] = (buffer[pos + 1]) + (buffer[Math.floor(i * 0.5) + 1]);
+        pos = Math.floor(i * 0.7);
+        // buffer[i] = (buffer[pos]) + (buffer[Math.floor(i * 0.5)]);
+        // buffer[i + 1] = (buffer[pos + 1]) + (buffer[Math.floor(i * 0.5) + 1]);
       }
+      buffer = Buffer.from(tBuffer.buffer);
       // console.log(buffer, chunk);
       // ao.write(chunk);
       ao.write(buffer);
