@@ -65,24 +65,33 @@ function Filter() {
     objectMode: false,
     write: (chunk, encoding, cb) => {
       length = chunk.length;
+      // buffer.copy(chunk.buffer);
+      //tBuffer = new Uint8Array(chunk.buffer);
+      // tBuffer = new Uint8Array(vlength);
+      // length = tBuffer.length;
+      buffer = Buffer.allocUnsafe(length);
+
+
       // for (var i = 0; i < length; i++) {
-      //   buffer[i] = chunk.buffer[i];
-      //   // buffer[i] = (Math.sin((i / length) * 3.1415 * 2.0) * 127);
-      //   // pos = Math.floor(i * 0.7);
-      //   // chunk[i] = (chunk[pos]) + (chunk[Math.floor(i * 0.5)]);
-      //   // chunk[i + 1] = (chunk[pos]) + (chunk[Math.floor(i * 0.5)]);
+      //   buffer[i] = chunk[i];
       // }
 
-      // buffer.copy(chunk.buffer);
-      tBuffer = new Uint8Array(chunk.buffer);
+      for (var i = 0; i < length; i += 8) {
+        // pos = i;
+        // buffer[i] = chunk[i];
 
-      for (var i = 0; i < length; i += 2) {
-        // buffer[i] = Math.random() * 127;
-        pos = Math.floor(i * 0.7);
-        // buffer[i] = (buffer[pos]) + (buffer[Math.floor(i * 0.5)]);
-        // buffer[i + 1] = (buffer[pos + 1]) + (buffer[Math.floor(i * 0.5) + 1]);
+        buffer[i] = (chunk[pos]) + (1);
+        buffer[i + 1] = (chunk[pos + 1]);
+        buffer[i + 2] = (chunk[pos + 2]);
+        buffer[i + 3] = (chunk[pos + 3]);
+
+        buffer[i + 4] = (chunk[pos + 4]);
+        buffer[i + 5] = (chunk[pos + 5]);
+        buffer[i + 6] = (chunk[pos + 6]);
+        buffer[i + 7] = (chunk[pos + 7]);
       }
-      buffer = Buffer.from(tBuffer.buffer);
+      // buffer = Buffer.from(tBuffer.buffer);
+
       // console.log(buffer, chunk);
       // ao.write(chunk);
       ao.write(buffer);
