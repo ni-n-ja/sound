@@ -19,12 +19,17 @@ ao.on('error', err => console.error);
 
 ao.start();
 
-var buffer = Buffer.allocUnsafe(4068);
-var ubuffer;
+var buffer = Buffer.allocUnsafe(1);
 var length;
+
+var tim = 200;
+
+// 3528
+// 4608
 
 process.on('message', function (data) {
   length = data.message.data.length;
+  buffer = Buffer.allocUnsafe(length);
   for (var i = 0; i < length; i++) {
     buffer[i] = data.message.data[i];
   }
@@ -59,4 +64,42 @@ process.on('play', () => {
     process.emit('play');
   }, 10);
 });
+
 process.emit('play');
+
+/*
+process.on('message', function (data) {
+  length = data.message.data.length;
+
+  if (buffer == null) {
+    buffer = Buffer.allocUnsafe(length);
+    for (var i = 0; i < length; i++) {
+      buffer[i] = data.message.data[i];
+    }
+  } else {
+    backBuffer = Buffer.allocUnsafe(length);
+    for (var i = 0; i < length; i++) {
+      backBuffer[i] = data.message.data[i];
+    }
+    buffer.concat(backBuffer);
+  }
+  nWrite(buffer);
+});
+
+process.on('message', function (data) {
+
+  length = data.message.data.length;
+  bufferLengh.push(length);
+  if (2 < bufferLengh.length) {
+    buffer = buffer.slice(bufferLengh[0]);
+    bufferLengh.shift();
+  }
+
+  backBuffer = Buffer.allocUnsafe(length);
+  for (var i = 0; i < length; i++) {
+    backBuffer[i] = data.message.data[i];
+  }
+  buffer = Buffer.concat([buffer, backBuffer]);
+
+});
+*/
