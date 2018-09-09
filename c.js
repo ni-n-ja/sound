@@ -65,13 +65,21 @@ function Filter() {
     objectMode: false,
     write: (chunk, encoding, cb) => {
       length = chunk.length;
+      // for (var i = 0; i < length; i++) {
+      //   buffer[i] = chunk.buffer[i];
+      //   // buffer[i] = (Math.sin((i / length) * 3.1415 * 2.0) * 127);
+      //   // pos = Math.floor(i * 0.7);
+      //   // chunk[i] = (chunk[pos]) + (chunk[Math.floor(i * 0.5)]);
+      //   // chunk[i + 1] = (chunk[pos]) + (chunk[Math.floor(i * 0.5)]);
+      // }
+      buffer.copy(chunk.buffer);
       for (var i = 0; i < length; i += 2) {
-        // buffer[i] = chunk[i];
-        buffer[i] = (Math.sin((i / length) * 3.1415 * 2.0) * 127);
-        // pos = Math.floor(i * 0.7);
-        // chunk[i] = (chunk[pos]) + (chunk[Math.floor(i * 0.5)]);
-        // chunk[i + 1] = (chunk[pos]) + (chunk[Math.floor(i * 0.5)]);
+        // buffer[i] = Math.random() * 127;
+        let pos = Math.floor(i * 0.7);
+        buffer[i] = (buffer[pos]) + (buffer[Math.floor(i * 0.5)]);
+        buffer[i + 1] = (buffer[pos + 1]) + (buffer[Math.floor(i * 0.5) + 1]);
       }
+      // console.log(buffer, chunk);
       // ao.write(chunk);
       ao.write(buffer);
       cb();
