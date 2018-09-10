@@ -44,12 +44,12 @@ process.once('SIGINT', () => {
 
 var length = 0;
 var pos;
-var tBuffer = null;
+var tBuffer = '';
 //3528
 
 setInterval(() => {
   let b = Math.floor(Math.random() * 3528);
-  console.log(length, buffer[b], b);
+  console.log(length, buffer[b], b, tBuffer);
 }, 1000);
 
 var buffer = Buffer.allocUnsafe(3528);
@@ -65,35 +65,49 @@ function Filter() {
     objectMode: false,
     write: (chunk, encoding, cb) => {
       length = chunk.length;
-      // buffer.copy(chunk.buffer);
-      //tBuffer = new Uint8Array(chunk.buffer);
-      // tBuffer = new Uint8Array(vlength);
-      // length = tBuffer.length;
       buffer = Buffer.allocUnsafe(length);
-
 
       // for (var i = 0; i < length; i++) {
       //   buffer[i] = chunk[i];
       // }
 
       for (var i = 0; i < length; i += 8) {
-        // pos = i;
+        pos = i;
+        // let hex = ('0000000' + Math.floor(chunk.readUInt32BE(i) * 0.001).toString(16)).slice(-8);
+        // let hex = ('0000000' + Math.floor(chunk.readUInt32BE(i) * 0.5).toString(16)).slice(-8);
+        let hex = ('0000000' + Math.floor(chunk.readUInt32BE(i) * 2).toString(16)).slice(-8);
+        // tBuffer = (parseInt(hex.toString().slice(0, 2), 16));
+        buffer[i] = (parseInt(hex.toString().substr(0, 2), 16));
+        buffer[i + 1] = (parseInt(hex.toString().substr(2, 2), 16));
+        buffer[i + 2] = (parseInt(hex.toString().substr(4, 2), 16));
+        buffer[i + 3] = (parseInt(hex.toString().substr(6, 2), 16));
+        // buffer[i + 1] = chunk[i + 1];
+        // buffer[i + 2] = chunk[i + 2];
+        // buffer[i + 3] = chunk[i + 3];
+
+        tBuffer = Math.floor(chunk.readUInt32BE(i) * 0.5).toString(16) + " " +
+          chunk.readUInt32BE(i) * 0.5 + " " +
+          chunk.readUInt32BE(i) + " ";
+
+        // tBuffer = parseInt(('0000000' + Math.floor(chunk.readUInt32BE(i)).toString(16)).slice(-8), 16) + " " + parseInt(('0000000' + Math.floor(chunk.readUInt32BE(i) * 0.001).toString(16)).slice(-8), 16);
+
+        // tBuffer = hex.toString() + " " +
+        //   hex.toString().slice(0, 2) + " " +
+        //   hex.toString().slice(2, 4) + " " +
+        //   hex.toString().slice(4, 6) + " " +
+        //   hex.toString().slice(6, 8);
         // buffer[i] = chunk[i];
+        // buffer[i + 1] = chunk[i + 1];
+        // buffer[i + 2] = chunk[i + 2];
+        // buffer[i + 3] = chunk[i + 3];
 
-        buffer[i] = (chunk[pos]) + (1);
-        buffer[i + 1] = (chunk[pos + 1]);
-        buffer[i + 2] = (chunk[pos + 2]);
-        buffer[i + 3] = (chunk[pos + 3]);
-
-        buffer[i + 4] = (chunk[pos + 4]);
-        buffer[i + 5] = (chunk[pos + 5]);
-        buffer[i + 6] = (chunk[pos + 6]);
-        buffer[i + 7] = (chunk[pos + 7]);
+        //tBuffer = ('0000000' + Math.floor(chunk.readUInt32BE(i + 4) * 0.5).toString(16)).slice(-8);
+        buffer[i + 4] = chunk[i];
+        buffer[i + 5] = chunk[i + 1];
+        buffer[i + 6] = chunk[i + 2];
+        buffer[i + 7] = chunk[i + 3];
       }
-      // buffer = Buffer.from(tBuffer.buffer);
 
-      // console.log(buffer, chunk);
-      // ao.write(chunk);
       ao.write(buffer);
       cb();
     }

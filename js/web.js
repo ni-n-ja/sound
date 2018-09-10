@@ -53,8 +53,10 @@ window.onload = () => {
                         input.connect(analyser);
                         analyser.connect(scriptNode);
                         // analyser.connect(gainNode);
-                        scriptNode.connect(filter);
-                        filter.connect(gainNode);
+
+                        // scriptNode.connect(filter);
+                        // filter.connect(gainNode);
+                        scriptNode.connect(gainNode);
                         gainNode.gain.value = 0.6;
                         gainNode.connect(audioCtx.destination);
                     });
