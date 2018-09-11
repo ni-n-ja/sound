@@ -9,31 +9,34 @@ var ao;
 
 
 var devices = portAudio.getDevices();
-var deviceId;
+var inputDeviceId;
 var outDeviceId;
 
 devices.forEach((device) => {
   if (device.name == "マイク (High Definition Audio デバイス)" && device.maxInputChannels == 2) {
     // if (device.name.includes('NETDUETTO') && device.maxInputChannels == 2) {
-    deviceId = device.id;
+    inputDeviceId = device.id;
   }
-  if (device.name.includes('NETDUETTO') && device.maxOutputChannels == 2) {
+  if (device.name.includes('NETDUETTO') && device.maxOutputChannels == 2 && device.hostAPIName == "MME") {
     outDeviceId = device.id;
   }
 });
 
+console.log(inputDeviceId, outDeviceId);
+
 ai = new portAudio.AudioInput({
   channelCount: 2,
-  sampleFormat: portAudio.SampleFormat8Bit,
+  sampleFormat: portAudio.SampleFormat16Bit,
   sampleRate: 44100,
-  deviceId: deviceId
+  deviceId: -1
 });
 
 ao = new portAudio.AudioOutput({
   channelCount: 2,
-  sampleFormat: portAudio.SampleFormat8Bit,
+  sampleFormat: portAudio.SampleFormat16Bit,
   sampleRate: 44100,
   deviceId: outDeviceId
+  // deviceId: -1
 });
 
 ao.on('error', err => console.error);
@@ -50,15 +53,16 @@ var length = 0;
 var pos;
 var pos2;
 var tBuffer = '';
+var buffer = Buffer.allocUnsafe(882);
 //3528
 //882
+//1152
 
 setInterval(() => {
   let b = Math.floor(Math.random() * 882);
   console.log(length, buffer[b], b, tBuffer);
+  console.log(buffer);
 }, 1000);
-
-var buffer = Buffer.allocUnsafe(882);
 
 function Filter() {
   if (!(this instanceof Filter)) {
@@ -73,24 +77,50 @@ function Filter() {
       length = chunk.length;
       buffer = Buffer.allocUnsafe(length);
 
-      for (var i = 0; i < length; i += 2) {
-        pos = i * 0.5;
-        if (pos % 2 !== 0) {
-          pos += 1;
-        }
-        pos2 = i * 0.7;
-        if (pos2 % 2 !== 0) {
-          pos2 += 1;
-        }
-        if (chunk.readInt8(pos) + chunk.readInt8(pos2) < 256) {
-          buffer[i] = chunk.readInt8(pos) + chunk.readInt8(pos2);
-          buffer[i + 1] = chunk.readInt8(pos) + chunk.readInt8(pos2);
-        } else {
-          buffer[i] = 256;
-          buffer[i + 1] = 256;
-        }
-
+      for (var i = 0; i < length; i++) {
+        buffer[i] = chunk[i];
       }
+
+      // for (var i = 0; i < length; i += 2) {
+      //   pos = i * 0.6;
+      //   if (pos % 2 !== 0) {
+      //     pos += 1;
+      //   }
+      //   pos2 = i * 0.75;
+      //   if (pos2 % 2 !== 0) {
+      //     pos2 += 1;
+      //   }
+
+      //   if (pos <= 2) {
+      //     buffer[i] = (chunk.readInt8(pos) + chunk.readInt8(pos + 2) + chunk.readInt8(pos + 4)) / 3;
+      //     buffer[i + 1] = (chunk.readInt8(pos) + chunk.readInt8(pos + 2) + chunk.readInt8(pos + 4)) / 3;
+      //   } else if (pos >= (length - 4)) {
+      //     buffer[i] = (chunk.readInt8(pos - 4) + chunk.readInt8(pos - 2) + chunk.readInt8(pos)) / 3;
+      //     buffer[i + 1] = (chunk.readInt8(pos - 4) + chunk.readInt8(pos - 2) + chunk.readInt8(pos)) / 3;
+      //   } else {
+      //     buffer[i] = (chunk.readInt8(pos - 2) + chunk.readInt8(pos) + chunk.readInt8(pos + 2) + chunk.readInt8(pos + 4)) / 4;
+      //     buffer[i + 1] = (chunk.readInt8(pos - 2) + chunk.readInt8(pos) + chunk.readInt8(pos + 2) + chunk.readInt8(pos + 4)) / 4;
+      //   }
+
+      //   if (pos2 <= 2) {
+      //     buffer[i] += (chunk.readInt8(pos2) + chunk.readInt8(pos2 + 2) + chunk.readInt8(pos2 + 4)) / 3 * 0.5;
+      //     buffer[i + 1] += (chunk.readInt8(pos2) + chunk.readInt8(pos2 + 2) + chunk.readInt8(pos2 + 4)) / 3 * 0.5;
+      //   } else if (pos2 >= (length - 4)) {
+      //     buffer[i] += (chunk.readInt8(pos2 - 4) + chunk.readInt8(pos2 - 2) + chunk.readInt8(pos2)) / 3 * 0.5;
+      //     buffer[i + 1] += (chunk.readInt8(pos2 - 4) + chunk.readInt8(pos2 - 2) + chunk.readInt8(pos2)) / 3 * 0.5;
+      //   } else {
+      //     buffer[i] += (chunk.readInt8(pos2 - 2) + chunk.readInt8(pos2) + chunk.readInt8(pos2 + 2) + chunk.readInt8(pos2 + 4)) / 4 * 0.5;
+      //     buffer[i + 1] += (chunk.readInt8(pos2 - 2) + chunk.readInt8(pos2) + chunk.readInt8(pos2 + 2) + chunk.readInt8(pos2 + 4)) / 4 * 0.5;
+      //   }
+
+      //   if (256 < buffer[i]) {
+      //     buffer[i] = 256;
+      //   }
+      //   if (256 < buffer[i + 1]) {
+      //     buffer[i + 1] = 256;
+      //   }
+
+      // }
 
       ao.write(buffer);
       cb();

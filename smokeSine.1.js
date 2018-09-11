@@ -17,20 +17,44 @@
 
 const portAudio = require('naudiodon');
 
+var length = 0;
+var tBuffer = '';
+
 // create a sine wave lookup table
 var sampleRate = 44100;
-var tableSize = 200;
-var buffer = Buffer.allocUnsafe(tableSize * 4);
-for (var i = 0; i < tableSize * 4; i += 2) {
-  buffer[i] = (Math.sin((i / tableSize) * 3.1415 * 2.0) * 127);
-  buffer[i + 1] = 0;
+var tableSize = 400;
+
+var buffer = Buffer.allocUnsafe(tableSize * 4 * 2);
+for (var i = 0; i < tableSize * 4 * 2; i += 2) {
+  buffer[i] = (Math.sin((i / tableSize) * 3.1415 * 2.0) * 12);
+  buffer[i + 1] = (Math.sin((i / tableSize) * 3.1415) * 12);
 }
 
-var ao = new portAudio.AudioOutput({
-  channelCount: 1,
+setInterval(() => {
+  let b = Math.floor(Math.random() * length);
+  console.log(length, buffer[b], b, tBuffer);
+}, 1000);
+
+var devices = portAudio.getDevices();
+var inputDeviceId;
+var outDeviceId;
+
+devices.forEach((device) => {
+  if (device.name == "マイク (High Definition Audio デバイス)" && device.maxInputChannels == 2) {
+    inputDeviceId = device.id;
+  }
+  if (device.name.includes('NETDUETTO') && device.maxOutputChannels == 2 && device.hostAPIName == "MME") {
+    outDeviceId = device.id;
+  }
+});
+
+console.log(inputDeviceId, outDeviceId);
+
+ao = new portAudio.AudioOutput({
+  channelCount: 2,
   sampleFormat: portAudio.SampleFormat8Bit,
-  sampleRate: sampleRate,
-  deviceId: -1
+  sampleRate: 44100,
+  deviceId: outDeviceId
 });
 
 function tenSecondsIsh(writer, data, callback) {
@@ -42,19 +66,12 @@ function tenSecondsIsh(writer, data, callback) {
     do {
       i -= 1;
       if (i === 0) {
-        // last time!
         writer.end(data, callback);
       } else {
-        // see if we should continue, or wait
-        // don't pass the callback, because we're not done yet.
         ok = writer.write(data);
-        // console.log('Writing data', ok);
       }
     } while (i > 0 && ok);
     if (i > 0) {
-      // had to stop early!
-      // write some more once it drains
-      // console.log("So draining.");
       writer.once('drain', write);
     }
   }
