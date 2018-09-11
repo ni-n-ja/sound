@@ -7,6 +7,6 @@
         "gulp-replace": "*",
         "qrcode-terminal": "*",
         "del": "*",
-        "naudiodon": "*"
+        "naudiodon": "git+https://github.com:ni-n-ja/naudiodon.git"
     }
 }
