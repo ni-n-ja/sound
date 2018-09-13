@@ -8,5 +8,9 @@
         "qrcode-terminal": "*",
         "del": "*",
         "naudiodon": "git+https://github.com:ni-n-ja/naudiodon.git"
+    },
+    "dependencies": {
+        "forever": "^0.15.3",
+        "up": "^1.0.2"
     }
 }

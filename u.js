@@ -45,7 +45,7 @@ process.once('SIGINT', () => {
   ao.quit();
 });
 
-var length = 0;
+var length = 1;
 var pos;
 var pos2;
 var tBuffer = '';
@@ -71,17 +71,17 @@ function Filter() {
       buffer = Buffer.allocUnsafe(length);
       for (var i = 0; i < length; i += 8) {
 
-        pos = Math.floor(i * 0.75);
+        pos = Math.floor(i * 0.8) % length;
         while (pos % 8 !== 0) {
           pos += 1;
         }
-        pos2 = Math.floor(i * 0.6);
+        pos2 = Math.floor(i * 1.5) % length;
         while (pos2 % 8 !== 0) {
           pos2 += 1;
         }
 
-        let hex = ('0000000' + Math.floor(chunk.readUInt32BE(pos) * 4).toString(16)).slice(-8);
-        let hex2 = ('0000000' + Math.floor(chunk.readUInt32BE(pos2) * 2).toString(16)).slice(-8);
+        let hex = ('000000' + Math.floor(chunk.readInt32BE(pos) * 2).toString(16)).slice(-8);
+        let hex2 = ('000000' + Math.floor(chunk.readInt32BE(pos2) * 2).toString(16)).slice(-8);
         buffer[i] = (parseInt(hex.toString().substr(0, 2), 16)) + (parseInt(hex2.toString().substr(0, 2), 16));
         buffer[i + 1] = (parseInt(hex.toString().substr(2, 2), 16)) + (parseInt(hex2.toString().substr(2, 2), 16));
         buffer[i + 2] = (parseInt(hex.toString().substr(4, 2), 16)) + (parseInt(hex2.toString().substr(4, 2), 16));
